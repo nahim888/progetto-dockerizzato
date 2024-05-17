@@ -13,3 +13,11 @@ services:
         - ./client:/app
       ports:
         - 4200:4200
+  server:
+      build:
+        dockerfile: Dockerfile
+        context: ./server
+      volumes:
+       - ./server:/app
+      ports:
+       - 5000:5000
