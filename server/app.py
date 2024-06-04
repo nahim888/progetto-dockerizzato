@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, json
 from flask_cors import CORS
 from pymongo import MongoClient
 import os
@@ -48,6 +48,25 @@ def ping_server():
 @app.route('/simple_json')
 def simple_json():
     return jsonify('{saluto:ciao}')
+
+@app.route('/newAnimal', methods = ['POST'])
+def newAnimal():
+    db=""
+    db = get_db() #Ottengo l'istanza del DB
+    #Cerco l'id maggiore 
+    last_animal = db.animal_tb.find_one(sort=[("id", -1)])
+    #print(last_animal, flush=True) # In caso di test aggiungere Flush
+    #aggiorno l'id
+    request.json['id'] = int(last_animal['id']) + 1 
+    #inserisco la richiesta
+    x = db.animal_tb.insert_one(request.json)
+    #creo la risposta per il client
+    resp = app.response_class(
+        response= json.dumps({"id":request.json['id'], "name":request.json['id'], "type":request.json['type']}),
+        status=200,
+        mimetype='application/json'
+    )
+    return resp
 
 if __name__=='__main__':
     app.run(host="0.0.0.0", port=5000)
